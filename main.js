@@ -1,5 +1,6 @@
-function main(){
-    var canvas = document.getElementById("MyCanvas");
+function main()
+{
+    var canvas = document.getElementById("myCanvas");
     var gl = canvas.getContext("webgl");
 
     // definisi verteks-verteks
