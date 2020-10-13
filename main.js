@@ -4,13 +4,13 @@ function main(){
 
     // definisi verteks-verteks
     /**
-     * A (-0.5, 0.5); B (-0.5, -0.5); C (0.5, -0.5)
+     * A (-0.5, 0.5); B (-0.5, -0.5); C (0.5, -0.5) ; D(0.5,0.5)
      */
     var vertices=[
         -0.5, 0.5,  //point A
         -0.5, -0.5, //point B
         0.5, -0.5,   // point C
-        -0.5, 0.5  //point A
+        0.5, 0.5  //point D
     ]
 
     var positionBuffer = gl.createBuffer();
@@ -46,7 +46,7 @@ function main(){
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
 
-    var primitive = gl.LINE_STRIP;
+    var primitive = gl.TRIANGLE_STRIP;
     var offset = 0;
     var count =4; // jml vertex (titik sudut)
     gl.drawArrays(primitive, offset ,count);
