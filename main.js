@@ -49,7 +49,7 @@ function main(){
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.viewport(100, 0, canvas.height, canvas.height)
 
-    var primitive = gl.TRIANGLE_FAN;
+    var primitive = gl.TRIANGLES;
     var offset = 0;
     var count =6; // jml vertex (titik sudut)
     gl.drawArrays(primitive, offset ,count);
