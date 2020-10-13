@@ -9,8 +9,10 @@ function main(){
     var vertices=[
         -0.5, 0.5,  //point A
         -0.5, -0.5, //point B
-        0.5, -0.5,   // point C
-        0.5, 0.5  //point D
+        0.5, -0.5,  //point C
+        0.5, -0.5,  //point C
+        0.5, 0.5,   //point D
+        -0.5, 0.5,  //point A
     ]
 
     var positionBuffer = gl.createBuffer();
@@ -45,9 +47,10 @@ function main(){
 
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.viewport(100, 0, canvas.height, canvas.height)
 
     var primitive = gl.TRIANGLE_FAN;
     var offset = 0;
-    var count =4; // jml vertex (titik sudut)
+    var count =6; // jml vertex (titik sudut)
     gl.drawArrays(primitive, offset ,count);
 }
