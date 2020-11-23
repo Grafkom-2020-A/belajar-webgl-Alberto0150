@@ -59,7 +59,7 @@ function main()
     var uDx = gl.getUniformLocation(shaderProgram, 'dx');
     var uDy = gl.getUniformLocation(shaderProgram, 'dy');
     var uDz = gl.getUniformLocation(shaderProgram, 'dz');
-    gl.uniform1f(uDz, dz);  // Tidak perlu di dalam loop render, karena dz tidak berubah
+    // gl.uniform1f(uDz, dz);  // Tidak perlu di dalam loop render, karena dz tidak berubah
 
     function render(){
         dx += 0.001;
