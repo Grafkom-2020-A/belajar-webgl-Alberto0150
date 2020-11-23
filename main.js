@@ -5,37 +5,37 @@ function main() {
     var vertices = [];
   
     var cubePoints = [
-      [-0.5,  0.5,  0.5],   // A, 0
-      [-0.5, -0.5,  0.5],   // B, 1
-      [ 0.5, -0.5,  0.5],   // C, 2 
-      [ 0.5,  0.5,  0.5],   // D, 3
-      [-0.5,  0.5, -0.5],   // E, 4
-      [-0.5, -0.5, -0.5],   // F, 5
-      [ 0.5, -0.5, -0.5],   // G, 6
-      [ 0.5,  0.5, -0.5]    // H, 7 
+        [-0.5,  0.5,  0.5],   // A, 0
+        [-0.5, -0.5,  0.5],   // B, 1
+        [ 0.5, -0.5,  0.5],   // C, 2 
+        [ 0.5,  0.5,  0.5],   // D, 3
+        [-0.5,  0.5, -0.5],   // E, 4
+        [-0.5, -0.5, -0.5],   // F, 5
+        [ 0.5, -0.5, -0.5],   // G, 6
+        [ 0.5,  0.5, -0.5]    // H, 7 
     ];
   
     var cubeColors = [
-      [],
-      [1.0, 0.0, 0.0],    // merah
-      [0.0, 1.0, 0.0],    // hijau
-      [0.0, 0.0, 1.0],    // biru
-      [1.0, 1.0, 1.0],    // putih
-      [1.0, 0.5, 0.0],    // oranye
-      [1.0, 1.0, 0.0],    // kuning
-      []
+        [],
+        [1.0, 0.0, 0.0],    // merah
+        [0.0, 1.0, 0.0],    // hijau
+        [0.0, 0.0, 1.0],    // biru
+        [1.0, 1.0, 1.0],    // putih
+        [1.0, 0.5, 0.0],    // oranye
+        [1.0, 1.0, 0.0],    // kuning
+        []
     ];
   
     function quad(a, b, c, d) {
-      var indices = [a, b, c, c, d, a];
-      for (var i=0; i<indices.length; i++) {
+        var indices = [a, b, c, c, d, a];
+        for (var i=0; i<indices.length; i++) {
         for (var j=0; j<3; j++) {
-          vertices.push(cubePoints[indices[i]][j]);
+            vertices.push(cubePoints[indices[i]][j]);
         }
         for (var j=0; j<3; j++) {
-          vertices.push(cubeColors[a][j]);
+            vertices.push(cubeColors[a][j]);
         }
-      }
+        }
     }
     quad(1, 2, 3, 0); // Kubus depan
     quad(2, 6, 7, 3); // Kubus kanan
@@ -115,13 +115,15 @@ function main() {
     var uProjection = gl.getUniformLocation(shaderProgram, 'projection');
   
     function render() {
-      gl.uniformMatrix4fv(uModel, false, model);
-      gl.uniformMatrix4fv(uView, false, view);
-      gl.uniformMatrix4fv(uProjection, false, projection);
-      gl.clearColor(0.0, 0.0, 0.0, 1.0);
-      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-      gl.drawArrays(primitive, offset, count);
-      requestAnimationFrame(render);
+        var theta = glMatrix.glMatrix.toRadian(1); // 1 derajat
+        glMatrix.mat4.rotate(model, model, theta, [1.0, 1.0, 1.0]);
+        gl.uniformMatrix4fv(uModel, false, model);
+        gl.uniformMatrix4fv(uView, false, view);
+        gl.uniformMatrix4fv(uProjection, false, projection);
+        gl.clearColor(0.0, 0.0, 0.0, 1.0);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        gl.drawArrays(primitive, offset, count);
+        requestAnimationFrame(render);
     }
     requestAnimationFrame(render);
   }
