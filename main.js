@@ -53,18 +53,10 @@ function main()
     var offset = 0;
     var count = 6; // jml vertex (titik sudut)
 
-    // var dx = 0;
-    // var dy = 0;
-    // var dz = 0;
-    // var uDx = gl.getUniformLocation(shaderProgram, 'dx');
-    // var uDy = gl.getUniformLocation(shaderProgram, 'dy');
-    // var uDz = gl.getUniformLocation(shaderProgram, 'dz');
-    // gl.uniform1f(uDz, dz);  // Tidak perlu di dalam loop render, karena dz tidak berubah
-
     var model = glMatrix.mat4.create();
     var view = glMatrix.mat4.create();
     glMatrix.mat4.lookAt(view,
-        [0.0, 0.0, 0.0], // di mana posisi kamera (posisi)
+        [0.0, 0.0, 2.0], // di mana posisi kamera (posisi)
         [0.0, 0.0, -2.0], // ke mana kamera menghadap (vektor)
         [0.0, 1.0, 0.0] // ke mana arah atas kamera (vektor)
         );
@@ -79,41 +71,10 @@ function main()
     var uView = gl.getUniformLocation(shaderProgram, 'view');
     var uProjection = gl.getUniformLocation(shaderProgram, 'projection');
 
-     // Element interaktif
-    // var freeze = false;
-    // function onMouseClick(event) 
-    // {
-    //     freeze = !freeze;
-    // }
-    // document.addEventListener('click', onMouseClick, false);
-
-    // function onKeyDown(event) 
-    // {
-    //     if (event.keyCode == 32) freeze = true;
-    // }
-    // function onKeyUp(event) 
-    // {
-    //     if (event.keyCode == 32) freeze = false;
-    // }
-    // document.addEventListener('keydown', onKeyDown, false);
-    // document.addEventListener('keyup', onKeyUp, false);
-
     var dz = 0.0;
 
-    function render(){
-        // dx += 0.001;
-        // dy += 0.001;
-        // dz += 0.001;
-
-        // if (!freeze) {
-        //     dx += 0.001;
-        //     dy += 0.001;
-        //     dz += 0.001;
-        //   }
-
-        // gl.uniform1f(uDx, dx);
-        // gl.uniform1f(uDy, dy);
-        // gl.uniform1f(uDz, dz);
+    function render()
+    {
 
         dz += 0.001;
         // Tambah translasi ke matriks model
