@@ -110,9 +110,12 @@ function main() {
       0.5,  // near
       10.0  // far
       );
-    var uModel = gl.getUniformLocation(shaderProgram, 'model');
-    var uView = gl.getUniformLocation(shaderProgram, 'view');
-    var uProjection = gl.getUniformLocation(shaderProgram, 'projection');
+    var uModel = gl.getUniformLocation(shaderProgram, 'u_Model');
+    var uView = gl.getUniformLocation(shaderProgram, 'u_View');
+    var uProjection = gl.getUniformLocation(shaderProgram, 'u_Projection');
+
+    var uAmbientColor = gl.getUniformLocation(shaderProgram, 'u_AmbientColor');
+    gl.uniform3fv(uAmbientColor, [0.2, 0.4, 0.6])
   
     function render() {
         var theta = glMatrix.glMatrix.toRadian(1); // 1 derajat
