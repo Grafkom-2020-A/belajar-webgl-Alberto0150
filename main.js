@@ -145,9 +145,54 @@ function main() {
   gl.uniform3fv(uDiffusePosition, [1.0, 2.0, 1.0]);
   var uNormal = gl.getUniformLocation(shaderProgram, 'u_Normal');
 
+  // Memutar kubus secara euclidean menggunakan mouse
+  var rotation = glMatrix.mat4.create();
+  var dragging, lastx, lasty;
+  function onMouseDown(event) {
+    var x = event.clientX;
+    var y = event.clientY;
+    var rect = event.target.getBoundingClientRect();
+    // Saat mouse diklik-kiri di area aktif browser,
+    //  maka flag dragging akan diaktifkan
+    if (
+      rect.left <= x &&
+      rect.right > x &&
+      rect.top <= y &&
+      rect.bottom > y
+    ) {
+      dragging = true;
+      lastx = x;
+      lasty = y;
+    }
+  }
+  function onMouseUp(event) {
+    // Ketika klik-kiri mouse dilipas
+    dragging = false;
+  }
+  function onMouseMove(event) {
+    var x = event.clientX;
+    var y = event.clientY;
+    if (dragging) {
+      // Asumsinya geser 1 piksel = putar 1/2 derajat
+      var dx = (x - lastx) / 2;
+      var dy = (y - lasty) / 2;
+      var rotx = glMatrix.glMatrix.toRadian(dy); // Rotasi terhadap sumbu x sebesar dy
+      var roty = glMatrix.glMatrix.toRadian(dx); // Rotasi terhadap sumbu y sebesar dx
+      // Menggunakan dx dan dy untuk memutar kubus
+      glMatrix.mat4.rotate(rotation, rotation, rotx, [1, 0, 0, 0]); // rotasi terhadap sumbu x
+      glMatrix.mat4.rotate(rotation, rotation, roty, [0, 1, 0, 0]); // rotasi terhadap sumbu x
+    }
+    lastx = x;
+    lasty = y;
+  }
+  document.addEventListener('mousedown', onMouseDown);
+  document.addEventListener('mouseup', onMouseUp);
+  document.addEventListener('mousemove', onMouseMove);
+
   function render() {
     var theta = glMatrix.glMatrix.toRadian(1); // 1 derajat
-    glMatrix.mat4.rotate(model, model, theta, [1.0, 1.0, 1.0]);
+    model = glMatrix.mat4.create(); // Matriks model kita reset ulang setiap kali render
+    glMatrix.mat4.multiply(model, model, rotation);
     gl.uniformMatrix4fv(uModel, false, model);
     gl.uniformMatrix4fv(uView, false, view);
     gl.uniformMatrix4fv(uProjection, false, projection);
