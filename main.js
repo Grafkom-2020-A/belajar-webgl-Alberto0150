@@ -136,6 +136,7 @@ function main() {
   var uModel = gl.getUniformLocation(shaderProgram, 'u_Model');
   var uView = gl.getUniformLocation(shaderProgram, 'u_View');
   var uProjection = gl.getUniformLocation(shaderProgram, 'u_Projection');
+  gl.uniformMatrix4fv(uProjection, false, projection);
 
   var uAmbientColor = gl.getUniformLocation(shaderProgram, 'u_AmbientColor');
   gl.uniform3fv(uAmbientColor, [0.2, 0.2, 0.2]);
@@ -145,9 +146,37 @@ function main() {
   gl.uniform3fv(uDiffusePosition, [1.0, 2.0, 1.0]);
   var uNormal = gl.getUniformLocation(shaderProgram, 'u_Normal');
 
-  // Memutar kubus secara euclidean menggunakan mouse
+  // QUATERNION SECTION
+  var lastPointOnTrackBall, currentPointOnTrackBall;
+  var lastQuat = glMatrix.quat.create();
+  function computeCurrentQuat() {
+    // Secara berkala hitung quaternion rotasi setiap ada perubahan posisi titik pointer mouse
+    var axisFromCrossProduct = glMatrix.vec3.cross(glMatrix.vec3.create(), lastPointOnTrackBall, currentPointOnTrackBall);
+    var angleFromDotProduct = Math.acos(glMatrix.vec3.dot(lastPointOnTrackBall, currentPointOnTrackBall));
+    var rotationQuat = glMatrix.quat.setAxisAngle(glMatrix.quat.create(), axisFromCrossProduct, angleFromDotProduct);
+    glMatrix.quat.normalize(rotationQuat, rotationQuat);
+    return glMatrix.quat.multiply(glMatrix.quat.create(), rotationQuat, lastQuat);
+  }
+  // Memproyeksikan pointer mouse agar jatuh ke permukaan ke virtual trackball
+  function getProjectionPointOnSurface(point) {
+    var radius = canvas.width/3;  // Jari-jari virtual trackball kita tentukan sebesar 1/3 lebar kanvas
+    var center = glMatrix.vec3.fromValues(canvas.width/2, canvas.height/2, 0);  // Titik tengah virtual trackball
+    var pointVector = glMatrix.vec3.subtract(glMatrix.vec3.create(), point, center);
+    pointVector[1] = pointVector[1] * (-1); // Flip nilai y, karena koordinat piksel makin ke bawah makin besar
+    var radius2 = radius * radius;
+    var length2 = pointVector[0] * pointVector[0] + pointVector[1] * pointVector[1];
+    if (length2 <= radius2) pointVector[2] = Math.sqrt(radius2 - length2); // Dapatkan nilai z melalui rumus Pytagoras
+    else {  // Atur nilai z sebagai 0, lalu x dan y sebagai paduan Pytagoras yang membentuk sisi miring sepanjang radius
+      pointVector[0] *= radius / Math.sqrt(length2);
+      pointVector[1] *= radius / Math.sqrt(length2);
+      pointVector[2] = 0;
+    }
+    return glMatrix.vec3.normalize(glMatrix.vec3.create(), pointVector);
+  }
+
+  // Memutar kubus secara virtual trackball (teknik quaternion) menggunakan mouse
   var rotation = glMatrix.mat4.create();
-  var dragging, lastx, lasty;
+  var dragging;
   function onMouseDown(event) {
     var x = event.clientX;
     var y = event.clientY;
@@ -161,51 +190,36 @@ function main() {
       rect.bottom > y
     ) {
       dragging = true;
-      lastx = x;
-      lasty = y;
     }
+    // Untuk keperluan perhitungan di virtual trackball
+    lastPointOnTrackBall = getProjectionPointOnSurface(glMatrix.vec3.fromValues(x, y, 0));
+    currentPointOnTrackBall = lastPointOnTrackBall;
   }
   function onMouseUp(event) {
     // Ketika klik-kiri mouse dilipas
     dragging = false;
+    if (currentPointOnTrackBall != lastPointOnTrackBall) {
+      lastQuat = computeCurrentQuat();
+    }
   }
   function onMouseMove(event) {
     if (dragging) {
       var x = event.clientX;
       var y = event.clientY;
-      var xaxis = glMatrix.vec4.create();
-      var yaxis = glMatrix.vec4.create();
-      // Agar sumbu X dan Y di object coordinate dapat menyesuaikan diri
-      //  dengan sumbu X dan Y di world coordinate ([1, 0, 0, 0] dan [0, 1, 0, 0]),
-      //  maka mereka perlu ditransformasikan kembali
-      //  dengan inversi dari rotasi yang dieksekusi sebelumnya
-      var backRotation = glMatrix.mat4.create();
-      glMatrix.mat4.invert(backRotation, rotation);
-      glMatrix.vec4.transformMat4(xaxis, glMatrix.vec4.fromValues(1, 0, 0, 0), backRotation);
-      glMatrix.vec4.transformMat4(yaxis, glMatrix.vec4.fromValues(0, 1, 0, 0), backRotation);
-      // Asumsinya geser 1 piksel = putar 1/2 derajat
-      var dx = (x - lastx) / 2;
-      var dy = (y - lasty) / 2;
-      var radx = glMatrix.glMatrix.toRadian(dy); // Rotasi terhadap sumbu x sebesar dy
-      var rady = glMatrix.glMatrix.toRadian(dx); // Rotasi terhadap sumbu y sebesar dx
-      // Menggunakan dx dan dy untuk memutar kubus
-      glMatrix.mat4.rotate(rotation, rotation, radx, xaxis); // rotasi terhadap sumbu x
-      glMatrix.mat4.rotate(rotation, rotation, rady, yaxis); // rotasi terhadap sumbu y
+      // Perhitungan putaran quaternion
+      currentPointOnTrackBall = getProjectionPointOnSurface(glMatrix.vec3.fromValues(x, y, 0));
+      glMatrix.mat4.fromQuat(rotation, computeCurrentQuat());
     }
-    lastx = x;
-    lasty = y;
   }
   document.addEventListener('mousedown', onMouseDown);
   document.addEventListener('mouseup', onMouseUp);
   document.addEventListener('mousemove', onMouseMove);
 
   function render() {
-    var theta = glMatrix.glMatrix.toRadian(1); // 1 derajat
     model = glMatrix.mat4.create(); // Matriks model kita reset ulang setiap kali render
     glMatrix.mat4.multiply(model, model, rotation);
     gl.uniformMatrix4fv(uModel, false, model);
     gl.uniformMatrix4fv(uView, false, view);
-    gl.uniformMatrix4fv(uProjection, false, projection);
     var normal = glMatrix.mat3.create();
     glMatrix.mat3.normalFromMat4(normal, model);
     gl.uniformMatrix3fv(uNormal, false, normal);
